@@ -12,6 +12,10 @@ Tag.init(
       allowNull: false,
       autoIncrement: true,
     },
+    tag_name: {
+      type: DataTypes.STRING, 
+      allowNull: false, 
+  },
   },
   {
     sequelize,
@@ -19,7 +23,8 @@ Tag.init(
     freezeTableName: true,
     underscored: true,
     modelName: 'tag',
-  }
+  },
+  
 );
 
 module.exports = Tag;
