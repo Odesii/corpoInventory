@@ -15,22 +15,19 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET one category by its `id` value with its associated Products
 router.get('/:id', async (req, res) => {
   try {
-    const categoryData = await Category.findOne({
-      where: {
-        id: req.params.id,
-      },
+    const category = await Category.findOne({
+      where: { id: req.params.id },
       include: [{ model: Product, attributes: ['id', 'product_name', 'price', 'stock', 'category_id'] }]
     });
 
-    if (!categoryData) {
+    if (!category) {
       res.status(404).json({ message: 'No category found with this id!' });
       return;
     }
 
-    res.status(200).json(categoryData);
+    res.json(category);
   } catch (err) {
     res.status(500).json(err);
   }
@@ -42,7 +39,7 @@ router.post('/', async (req, res) => {
     const newCategory = await Category.create({
       category_name: req.body.category_name
     });
-    res.status(201).json(newCategory);
+    res.status(200).json(newCategory);
   } catch (err) {
     res.status(400).json(err);
   }
@@ -51,14 +48,12 @@ router.post('/', async (req, res) => {
 // PUT to update a category by its `id` value
 router.put('/:id', async (req, res) => {
   try {
-    const updatedCategory = await Category.update(req.body, {
-      where: {
-        id: req.params.id,
-      }
+    const categoryUpdate = await Category.update(req.body, {
+      where: { id: req.params.id }
     });
 
-    if (!updatedCategory[0]) {
-      res.status(404).json({ message: 'No category found with this id!' });
+    if (categoryUpdate[0] === 0) {
+      res.status(404).json({ message: 'No category found with this id, or no new data provided!' });
       return;
     }
 
@@ -71,13 +66,11 @@ router.put('/:id', async (req, res) => {
 // DELETE a category by its `id` value
 router.delete('/:id', async (req, res) => {
   try {
-    const deletedCategory = await Category.destroy({
-      where: {
-        id: req.params.id,
-      }
+    const categoryDelete = await Category.destroy({
+      where: { id: req.params.id }
     });
 
-    if (!deletedCategory) {
+    if (!categoryDelete) {
       res.status(404).json({ message: 'No category found with this id!' });
       return;
     }
