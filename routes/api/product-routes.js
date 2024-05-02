@@ -33,13 +33,22 @@ try{
 
 // create new product
 router.post('/', async (req, res) => {
-  try{
-    const product = await Product.create(req.body);
-    res.json(product);
-  }catch (err)
-  {
-    res.status(500).json(err)
-  };
+  router.post('/', async (req, res) => {
+    try {
+      const product = await Product.create(req.body);
+      if (req.body.tagIds && req.body.tagIds.length) {
+        const productTagIdArr = req.body.tagIds.map(tag_id => ({
+          product_id: product.id,
+          tag_id
+        }));
+        await ProductTag.bulkCreate(productTagIdArr);
+      }
+      res.status(201).json(product);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json(err);
+    }
+  });
   /* req.body should look like this... 
     {
       product_name: "Basketball",
@@ -106,7 +115,7 @@ router.put('/:id', (req, res) => {
           ]);
         });
       }
-
+      
       return res.json(product);
     })
     .catch((err) => {
@@ -115,8 +124,20 @@ router.put('/:id', (req, res) => {
     });
 });
 
-router.delete('/:id', (req, res) => {
-  // delete one product by its `id` value
+router.delete('/:id', async (req, res) => {
+  try {
+    const numDeleted = await Product.destroy({
+      where: { id: req.params.id }
+    });
+
+    if (numDeleted) {
+      res.status(200).json({ message: 'Product deleted successfully' });
+    } else {
+      res.status(404).json({ message: 'Product not found' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;
